@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  # 聊天机器人容器
+  chatbot:
+    build: .
+    container_name: chatbot_app
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/
+      - MONGO_DB=chatbot_logs
+      - MONGO_COLLECTION=logs
+    tty: true  # 保持终端交互
+    stdin_open: true
+
+  # MongoDB 容器（专门存日志）
+  mongo:
+    image: mongo:6
+    container_name: chatbot_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"  # 本地可连接查看数据
+    volumes:
+      - mongo_data:/data/db  # 数据持久化
+
+volumes:
+  mongo_data:  # 自动创建数据卷
