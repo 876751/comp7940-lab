@@ -13,7 +13,9 @@ Your task is to analyze the needs provided by the user and connect them with rel
  Activities can be sourced from the internet.
 '''
 default_string = '''You are a helper! Your users are university students. 
-Your replies should be conversational, informative, use simple words, and be straightforward.'''
+Your replies should be conversational, informative, use simple words, and be straightforward.
+Output "If you have any problems, send "\help" for more information." at the start of the conversation. 
+'''
 
 
 # A simple client for the ChatGPT REST API
