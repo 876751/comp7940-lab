@@ -15,7 +15,7 @@ from pymongo import MongoClient
 from bson import InvalidDocument
 import os
 
-# 从环境变量获取 MongoDB 连接地址（Docker 内部用服务名访问）
+# Get the MongoDB connection string from environment variables (using service names for internal Docker access).
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongo:27017/")
 DB_NAME = os.getenv("MONGO_DB", "chatbot_logs")
 COLLECTION_NAME = os.getenv("MONGO_COLLECTION", "logs")
@@ -50,23 +50,22 @@ class MongoDbHandler(logging.Handler):
             data['levelname'] = 'critical'
             self.collection.insert_one(data)
 
-# 配置全局日志
+# Configure global logging
 def get_logger(name="chatbot"):
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
-    logger.handlers.clear()  # 避免重复日志
+    logger.handlers.clear()  # avoid repeating logs
 
-    # 日志格式
+    # log format
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
-    # 添加 MongoDB 处理器
+    #  MongoDB handler
     mongo_handler = MongoDbHandler()
     mongo_handler.setFormatter(formatter)
     logger.addHandler(mongo_handler)
 
-    # 可选：同时输出到控制台（方便调试）
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
