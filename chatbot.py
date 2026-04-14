@@ -21,6 +21,14 @@ DB_NAME = os.getenv("MONGO_DB", "chatbot_logs")
 COLLECTION_NAME = os.getenv("MONGO_COLLECTION", "logs")
 
 global logger
+global help_string
+
+help_string = '''The functions of this chatbot are as follows. Please enter the corresponding commands to switch.
+\help   -View all commands
+\QA   -Help answer questions in learning
+\event   -Recommend activities as needed
+\default   -A helper for university students. 
+'''
 
 
 class MongoDbHandler(logging.Handler):
@@ -69,6 +77,7 @@ def get_logger(name="chatbot"):
 
 def main():
     global logger
+    global config
     
     logger = get_logger()
     
@@ -95,12 +104,46 @@ def main():
 async def callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # await update.message.reply_text(response)
 
+    global config
     global logger
-    logger.info("UPDATE: " + str(update))
+    global gpt
+    global help_string
+
+    try:
+        input = update.message.text
+        if(input == None or input == ''):
+            return
+    except:
+        return
+    
+    logger.info("UPDATE: " + input)
+
     loading_message = await update.message.reply_text('Thinking...')
 
+    if(input.startswith('\\')):
+        logger.info('switch to ' + input)   
+        if input == '\QA' :      
+            gpt = ChatGPT(config, input)
+            await loading_message.edit_text('Please enter your question')
+        elif input == '\event':         
+            gpt = ChatGPT(config, input)
+            await loading_message.edit_text('Please enter your request')
+        elif input == '\default':         
+            gpt = ChatGPT(config, input)
+            await loading_message.edit_text('Switched to AI assistant')
+        elif input == '\help':
+            await loading_message.edit_text(help_string)
+        else:
+            await loading_message.edit_text('Unknown command'+help_string)
+        return
+    
+    
+    logger.info("Call gpt:" + input)
+
+
+
     # send the user message to the ChatGPT client
-    response = gpt.submit(update.message.text)
+    response = gpt.submit(input)
 
     # send the response to the Telegram box client
     await loading_message.edit_text(response)

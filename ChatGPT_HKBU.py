@@ -1,9 +1,29 @@
 import requests
 import configparser
 
+global QA_string
+global event_string
+global default_string
+
+QA_string = '''You are a learning assistant. Your task is to answer the user's questions.
+ Pay attention to making explanations detailed, professional, and easy to understand.
+'''
+event_string = '''You are an event recommendation assistant. 
+Your task is to analyze the needs provided by the user and connect them with relevant activities.
+ Activities can be sourced from the internet.
+'''
+default_string = '''You are a helper! Your users are university students. 
+Your replies should be conversational, informative, use simple words, and be straightforward.'''
+
+
 # A simple client for the ChatGPT REST API
 class ChatGPT:
-    def __init__(self, config):
+    system_message = default_string
+    def __init__(self, config, command = '/default'):
+        global course_string
+        global event_string
+        global default_string
+
         # Read API configuration values from the ini file
         api_key = config['CHATGPT']['API_KEY']
         base_url = config['CHATGPT']['BASE_URL']
@@ -21,10 +41,12 @@ class ChatGPT:
         }
 
         # Define the system prompt to guide the assistant’s behavior
-        self.system_message = (
-            'You are a helper! Your users are university students. '
-            'Your replies should be conversational, informative, use simple words, and be straightforward.'
-        )
+        if command == '/default':
+            self.system_message = (default_string)
+        elif command == '/QA':
+            self.system_message = (QA_string)
+        elif command == '/event':
+            self.system_message = (event_string)
 
     def submit(self, user_message: str):
         
